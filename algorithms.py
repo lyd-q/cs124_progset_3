@@ -6,18 +6,18 @@ import math
 #generates a random neighbor
 def rand_neighbor(S):
     n = len(S)
-    i = random.randint(1, n)
-    j = random.randint(1, n)
+    i = random.randint(0, n-1)
+    j = random.randint(0, n-1)
 
     #make sure they're not the same
     while (i == j):
-        j = random.randint(1, n)
+        j = random.randint(0, n-1)
     
     #generate a random neighbor
     S_prime = S
     S_prime[i] = S_prime[i]*(-1)
 
-    if random.choice(1, -1) == 1:
+    if random.choice([1, -1]) == 1:
         S_prime[j] = S_prime[j]*(-1)
     
     return S_prime
@@ -34,7 +34,7 @@ def repeated_random(A, iters):
         S_prime = np.array([random.choice([1, -1]) for i in range(n)])
         if (np.dot(A, S_prime) < np.dot(A, S)):
             S = S_prime
-    return S
+    return np.dot(A, S)
 
 def hill_climbing(A, iters):
     n = len(A)
@@ -43,7 +43,7 @@ def hill_climbing(A, iters):
         S_prime = rand_neighbor(S)
         if (np.dot(A, S_prime) < np.dot(A, S)):
             S = S_prime
-    return S
+    return np.dot(A, S)
         
 def simulated_annealing(A, iter):
     n = len(A)
@@ -60,19 +60,19 @@ def simulated_annealing(A, iter):
                 S = S_prime
         if (np.dot(A, S) < np.dot(A, S_doubleprime)):
             S_doubleprime = S
-    return S_doubleprime
+    return np.dot(S_doubleprime, A)
 
 
 #okay yippee! now for the preparitioned versions
 
 def rand_neighbor_pp(P):
     n = len(P)
-    i = random.randint(1, n)
-    j = random.randint(1, n)
+    i = random.randint(0, n-1)
+    j = random.randint(0, n-1)
 
     #make sure they're not the same
     while (P[i] == j):
-        j = random.randint(1, n)
+        j = random.randint(0, n-1)
 
     #set p_i to j
     P[i] = j
@@ -87,7 +87,7 @@ def repeated_random_pp(A, iters):
         P_prime = np.array([random.randrange(1,n) for i in range(n)])
         if KK.KK(P_prime) < KK.KK(P):
             P = P_prime
-    return P
+    return KK.KK(P)
 
 def hill_climbing_pp(A, iters):
     n = len(A)
@@ -96,7 +96,7 @@ def hill_climbing_pp(A, iters):
         P_prime = rand_neighbor_pp(P)
         if KK.KK(P_prime) < KK.KK(P):
             P = P_prime
-    return P
+    return KK.KK(P)
 
 def  simulated_annealing_pp(A, iters):
     n = len(A)
@@ -112,4 +112,13 @@ def  simulated_annealing_pp(A, iters):
                 P = P_prime
         if KK.KK(P_prime) < KK.KK(P_doubleprime):
             P_doubleprime = P
-    return P_doubleprime
+    return  KK.KK(P_doubleprime)
+
+# x = np.array([10, 8, 7, 6, 5])
+# print(KK.KK(x))
+# print(repeated_random(x, 25000))
+# print(hill_climbing(x, 25000))
+# print(simulated_annealing(x, 25000))
+# print(repeated_random_pp(x, 25000))
+# print(hill_climbing_pp(x, 25000))
+# print(simulated_annealing_pp(x, 25000))
