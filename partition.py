@@ -1,7 +1,22 @@
 import random
 import numpy as np
-import KK
 import math
+import heapq
+import sys
+
+ 
+
+def KK(A):
+    #make it negative to use minheap commands
+    listA = list(-1 * A)
+    heapq.heapify(listA)
+    for i in range(0, len(A)):
+        max1 = -1 * heapq.heappop(listA)
+        max2 = -1 * heapq.heappop(listA)
+        diff = -1 * abs(max1 - max2)
+        heapq.heappush(listA, diff)
+        heapq.heappush(listA, 0)
+    return int((-1) * listA[0])
 
 #generates a random neighbor
 def rand_neighbor(S):
@@ -34,7 +49,7 @@ def repeated_random(A, iters):
         S_prime = np.array([random.choice([1, -1]) for i in range(n)])
         if (np.dot(A, S_prime) < np.dot(A, S)):
             S = S_prime
-    return np.dot(A, S)
+    return int(abs(np.dot(A, S)))
 
 def hill_climbing(A, iters):
     n = len(A)
@@ -43,7 +58,7 @@ def hill_climbing(A, iters):
         S_prime = rand_neighbor(S)
         if (np.dot(A, S_prime) < np.dot(A, S)):
             S = S_prime
-    return np.dot(A, S)
+    return int(abs(np.dot(A, S)))
         
 def simulated_annealing(A, iter):
     n = len(A)
@@ -60,7 +75,7 @@ def simulated_annealing(A, iter):
                 S = S_prime
         if (np.dot(A, S) < np.dot(A, S_doubleprime)):
             S_doubleprime = S
-    return np.dot(S_doubleprime, A)
+    return int(abs(np.dot(S_doubleprime, A)))
 
 
 #okay yippee! now for the preparitioned versions
@@ -85,18 +100,18 @@ def repeated_random_pp(A, iters):
     P = np.array([random.randrange(1,n) for i in range(n)])
     for i in range(iters):
         P_prime = np.array([random.randrange(1,n) for i in range(n)])
-        if KK.KK(P_prime) < KK.KK(P):
+        if KK(P_prime) < KK(P):
             P = P_prime
-    return KK.KK(P)
+    return KK(P)
 
 def hill_climbing_pp(A, iters):
     n = len(A)
     P = np.array([random.randrange(1,n) for i in range(n)])
     for i in range(iters):
         P_prime = rand_neighbor_pp(P)
-        if KK.KK(P_prime) < KK.KK(P):
+        if KK(P_prime) < KK(P):
             P = P_prime
-    return KK.KK(P)
+    return KK(P)
 
 def  simulated_annealing_pp(A, iters):
     n = len(A)
@@ -104,21 +119,35 @@ def  simulated_annealing_pp(A, iters):
     P_doubleprime = P 
     for i in range(iters):
         P_prime = rand_neighbor_pp(P)
-        if KK.KK(P_prime) < KK.KK(P):
+        if KK(P_prime) < KK(P):
             P = P_prime
         else:
             p = math.exp(-((np.dot(A, P_prime) - np.dot(A, P_prime))/T(i)))
             if random.random() < p:
                 P = P_prime
-        if KK.KK(P_prime) < KK.KK(P_doubleprime):
+        if KK(P_prime) < KK(P_doubleprime):
             P_doubleprime = P
-    return  KK.KK(P_doubleprime)
+    return  KK(P_doubleprime)
 
-# x = np.array([10, 8, 7, 6, 5])
-# print(KK.KK(x))
-# print(repeated_random(x, 25000))
-# print(hill_climbing(x, 25000))
-# print(simulated_annealing(x, 25000))
-# print(repeated_random_pp(x, 25000))
-# print(hill_climbing_pp(x, 25000))
-# print(simulated_annealing_pp(x, 25000))
+
+alg = int(sys.argv[2])
+input_file = sys.argv[3]
+A = np.zeros(100)
+with open(input_file, "r") as file:
+    for i in range(100):
+        line = file.readline()
+        A[i] = int(line)
+if alg == 0:
+    print(KK(A))
+if alg == 1:
+    print(repeated_random(A, 25000))
+if alg == 2:
+    print(hill_climbing(A, 25000))
+if alg == 3:
+    print(simulated_annealing(A, 25000))
+if alg == 11:
+    print(repeated_random_pp(A, 25000))
+if alg == 12:
+    print(hill_climbing_pp(A, 25000))
+if alg == 13:
+    print(simulated_annealing_pp(A, 25000))
