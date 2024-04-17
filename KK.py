@@ -31,6 +31,7 @@ def KK (A):
     #return (-1) * heapq.heappeek(listA)
     return (-1) * listA[0]
 
-# x = np.array([10, 15, 0, 6, 5])
+#x = np.array([10, 15, 0, 6, 5])
 # print(x)
 # print(KK(x))
+

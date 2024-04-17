@@ -14,7 +14,7 @@ def rand_neighbor(S):
         j = random.randint(0, n-1)
     
     #generate a random neighbor
-    S_prime = S
+    S_prime = np.copy(S) 
     S_prime[i] = S_prime[i]*(-1)
 
     if random.choice([1, -1]) == 1:
@@ -32,6 +32,7 @@ def repeated_random(A, iters):
     S = np.array([random.choice([1, -1]) for i in range(n)])
     for i in range(iters):
         S_prime = np.array([random.choice([1, -1]) for i in range(n)])
+        print(S_prime)
         if (np.dot(A, S_prime) < np.dot(A, S)):
             S = S_prime
     return np.dot(A, S)
@@ -39,11 +40,17 @@ def repeated_random(A, iters):
 def hill_climbing(A, iters):
     n = len(A)
     S = np.array([random.choice([1, -1]) for i in range(n)])
+    print(S)
     for i in range(iters):
         S_prime = rand_neighbor(S)
-        if (np.dot(A, S_prime) < np.dot(A, S)):
+        print(S)
+        print(S_prime)
+        print(abs(np.dot(A, S_prime)))
+        print(abs(np.dot(A, S)))
+        if (abs(np.dot(A, S_prime)) < abs(np.dot(A, S))):
             S = S_prime
-    return np.dot(A, S)
+            print("change")
+    return int(abs(np.dot(A, S)))
         
 def simulated_annealing(A, iter):
     n = len(A)
@@ -55,12 +62,12 @@ def simulated_annealing(A, iter):
         if (np.dot(A, S_prime) < np.dot(A, S)):
             S = S_prime
         else:
-            p = math.exp(-((np.dot(A, S_prime) - np.dot(A, S_prime))/T(i)))
+            p = math.exp(-(abs(np.dot(A, S_prime)) - abs(np.dot(A, S)))/T(i))
             if random.random() < p:
                 S = S_prime
         if (np.dot(A, S) < np.dot(A, S_doubleprime)):
             S_doubleprime = S
-    return np.dot(S_doubleprime, A)
+    return abs(np.dot(S_doubleprime, A))
 
 
 #okay yippee! now for the preparitioned versions
@@ -74,20 +81,32 @@ def rand_neighbor_pp(P):
     while (P[i] == j):
         j = random.randint(0, n-1)
 
-    #set p_i to j
-    P[i] = j
-    return P
+    #set p_i to j'
+    P_prime = np.copy(P)
+    P_prime[i] = j
+
+    return P_prime
+
+def get_A_prime(A, P):
+    n = len(A)
+    A_prime = [0] * n 
+    for j in range(n):
+        A_prime[P[j]] = A_prime[P[j]] + A[j]
+    return np.array(A_prime)
+
 
 def repeated_random_pp(A, iters):
-
     #start with random P
     n = len(A)
-    P = np.array([random.randrange(1,n) for i in range(n)])
+    P = np.array([random.randrange(0,n-1) for i in range(n)])
+    newA = get_A_prime(A, P)
     for i in range(iters):
-        P_prime = np.array([random.randrange(1,n) for i in range(n)])
-        if KK.KK(P_prime) < KK.KK(P):
+        newA = get_A_prime(A, P)
+        P_prime = np.array([random.randrange(0,n-1) for i in range(n)])
+        newA_prime = get_A_prime(A, P_prime)
+        if KK.KK(newA_prime) < KK.KK(newA):
             P = P_prime
-    return KK.KK(P)
+    return int(KK.KK(newA))
 
 def hill_climbing_pp(A, iters):
     n = len(A)
@@ -114,11 +133,18 @@ def  simulated_annealing_pp(A, iters):
             P_doubleprime = P
     return  KK.KK(P_doubleprime)
 
-# x = np.array([10, 8, 7, 6, 5])
+x = np.array([10, 8, 7, 6, 5])
 # print(KK.KK(x))
-# print(repeated_random(x, 25000))
-# print(hill_climbing(x, 25000))
-# print(simulated_annealing(x, 25000))
-# print(repeated_random_pp(x, 25000))
-# print(hill_climbing_pp(x, 25000))
+# print(repeated_random(x, 1))
+
+# print(hill_climbing(x, 10))
+print(simulated_annealing(x, 10000))
+# print(repeated_random_pp(x, 100))
+#print(hill_climbing_pp(x, 10))
 # print(simulated_annealing_pp(x, 25000))
+
+# # print(rand_neighbor([1, 1, 1, 1, 1, 1]))
+# P = np.array([0, 1, 1, 3, 4])
+# y = get_A_prime(x, P)
+# print(y)
+# print(KK.KK(y))

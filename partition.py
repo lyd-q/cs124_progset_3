@@ -4,7 +4,6 @@ import math
 import heapq
 import sys
 
- 
 
 def KK(A):
     #make it negative to use minheap commands
@@ -29,7 +28,7 @@ def rand_neighbor(S):
         j = random.randint(0, n-1)
     
     #generate a random neighbor
-    S_prime = S
+    S_prime = np.copy(S) 
     S_prime[i] = S_prime[i]*(-1)
 
     if random.choice([1, -1]) == 1:
@@ -47,7 +46,7 @@ def repeated_random(A, iters):
     S = np.array([random.choice([1, -1]) for i in range(n)])
     for i in range(iters):
         S_prime = np.array([random.choice([1, -1]) for i in range(n)])
-        if (np.dot(A, S_prime) < np.dot(A, S)):
+        if (abs(np.dot(A, S_prime)) < abs(np.dot(A, S))):
             S = S_prime
     return int(abs(np.dot(A, S)))
 
@@ -56,7 +55,7 @@ def hill_climbing(A, iters):
     S = np.array([random.choice([1, -1]) for i in range(n)])
     for i in range(iters):
         S_prime = rand_neighbor(S)
-        if (np.dot(A, S_prime) < np.dot(A, S)):
+        if (abs(np.dot(A, S_prime)) < abs(np.dot(A, S))):
             S = S_prime
     return int(abs(np.dot(A, S)))
         
@@ -67,13 +66,13 @@ def simulated_annealing(A, iter):
     for i in range(iter):
         #s' = random neighbor
         S_prime = rand_neighbor(S)
-        if (np.dot(A, S_prime) < np.dot(A, S)):
+        if (abs(np.dot(A, S_prime)) < abs(np.dot(A, S))):
             S = S_prime
         else:
-            p = math.exp(-((np.dot(A, S_prime) - np.dot(A, S_prime))/T(i)))
+            p = math.exp(-(abs(np.dot(A, S_prime)) - abs(np.dot(A, S)))/T(i))
             if random.random() < p:
                 S = S_prime
-        if (np.dot(A, S) < np.dot(A, S_doubleprime)):
+        if (abs(np.dot(A, S)) < abs(np.dot(A, S_doubleprime))):
             S_doubleprime = S
     return int(abs(np.dot(S_doubleprime, A)))
 
@@ -89,45 +88,63 @@ def rand_neighbor_pp(P):
     while (P[i] == j):
         j = random.randint(0, n-1)
 
-    #set p_i to j
-    P[i] = j
-    return P
+    #set p_i to j'
+    P_prime = np.copy(P)
+    P_prime[i] = j
+
+    return P_prime
+
+def get_A_prime(A, P):
+    n = len(A)
+    A_prime = [0] * n 
+    for j in range(n):
+        A_prime[P[j]] = A_prime[P[j]] + A[j]
+    return np.array(A_prime)
+
 
 def repeated_random_pp(A, iters):
-
     #start with random P
     n = len(A)
-    P = np.array([random.randrange(1,n) for i in range(n)])
+    P = np.array([random.randrange(0,n-1) for i in range(n)])
+    newA = get_A_prime(A, P)
     for i in range(iters):
-        P_prime = np.array([random.randrange(1,n) for i in range(n)])
-        if KK(P_prime) < KK(P):
+        newA = get_A_prime(A, P)
+        P_prime = np.array([random.randrange(0, n-1) for i in range(n)])
+        newA_prime = get_A_prime(A, P_prime)
+        if KK(newA_prime) < KK(newA):
             P = P_prime
-    return KK(P)
+    return int(KK(newA))
 
 def hill_climbing_pp(A, iters):
     n = len(A)
     P = np.array([random.randrange(1,n) for i in range(n)])
+    newA = get_A_prime(A, P)
     for i in range(iters):
+        newA = get_A_prime(A, P)
         P_prime = rand_neighbor_pp(P)
-        if KK(P_prime) < KK(P):
+        newA_prime = get_A_prime(A, P_prime)
+        if KK(newA_prime) < KK(newA):
             P = P_prime
-    return KK(P)
+    return int(KK(newA))
 
 def  simulated_annealing_pp(A, iters):
     n = len(A)
     P = np.array([random.randrange(1,n) for i in range(n)])
+    newA = get_A_prime(A, P)
     P_doubleprime = P 
     for i in range(iters):
         P_prime = rand_neighbor_pp(P)
-        if KK(P_prime) < KK(P):
+        newA_prime = get_A_prime(A, P_prime)
+        if KK(newA_prime) < KK(newA):
             P = P_prime
         else:
-            p = math.exp(-((np.dot(A, P_prime) - np.dot(A, P_prime))/T(i)))
+            p = math.exp(-(( KK(newA_prime) - KK(newA))/T(i)))
             if random.random() < p:
                 P = P_prime
-        if KK(P_prime) < KK(P_doubleprime):
+        newA_double = get_A_prime(A, P_doubleprime)
+        if KK(newA_prime) < KK(newA_double):
             P_doubleprime = P
-    return  KK(P_doubleprime)
+    return  int(KK(newA_double))
 
 
 alg = int(sys.argv[2])
@@ -146,8 +163,8 @@ if alg == 2:
 if alg == 3:
     print(simulated_annealing(A, 25000))
 if alg == 11:
-    print(repeated_random_pp(A, 25000))
+    print(repeated_random_pp(A, 5000))
 if alg == 12:
-    print(hill_climbing_pp(A, 25000))
+    print(hill_climbing_pp(A, 5000))
 if alg == 13:
-    print(simulated_annealing_pp(A, 25000))
+    print(simulated_annealing_pp(A, 5000))
