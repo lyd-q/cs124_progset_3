@@ -106,45 +106,67 @@ def repeated_random_pp(A, iters):
     #start with random P
     n = len(A)
     P = np.array([random.randrange(0,n-1) for i in range(n)])
-    newA = get_A_prime(A, P)
+    #store residue 
+    currentA = get_A_prime(A, P)
+    residue = KK(currentA)
     for i in range(iters):
-        newA = get_A_prime(A, P)
         P_prime = np.array([random.randrange(0, n-1) for i in range(n)])
         newA_prime = get_A_prime(A, P_prime)
-        if KK(newA_prime) < KK(newA):
+        # residue = KK(newA)
+        cand_res = KK(newA_prime)
+        if cand_res < residue:
             P = P_prime
-    return int(KK(newA))
+            currentA = newA_prime
+            residue = cand_res
+    return residue
 
 def hill_climbing_pp(A, iters):
     n = len(A)
     P = np.array([random.randrange(1,n) for i in range(n)])
-    newA = get_A_prime(A, P)
+    currentA = get_A_prime(A, P)
+    residue = KK(currentA)
     for i in range(iters):
-        newA = get_A_prime(A, P)
         P_prime = rand_neighbor_pp(P)
         newA_prime = get_A_prime(A, P_prime)
-        if KK(newA_prime) < KK(newA):
+        cand_res = KK(newA_prime)
+        if cand_res < residue:
             P = P_prime
-    return int(KK(newA))
+            currentA = newA_prime
+            residue = cand_res
+    return residue
 
 def  simulated_annealing_pp(A, iters):
     n = len(A)
     P = np.array([random.randrange(1,n) for i in range(n)])
-    newA = get_A_prime(A, P)
+    currentA = get_A_prime(A, P)
+    residue = KK(currentA)
+
+
     P_doubleprime = P 
+    newA_double = get_A_prime(A, P_doubleprime)
+    double_res = KK(newA_double)
+
     for i in range(iters):
         P_prime = rand_neighbor_pp(P)
         newA_prime = get_A_prime(A, P_prime)
-        if KK(newA_prime) < KK(newA):
+        cand_res = KK(newA_prime)
+        if cand_res < residue:
             P = P_prime
+            currentA = newA_prime
+            residue = cand_res
         else:
-            p = math.exp(-(( KK(newA_prime) - KK(newA))/T(i)))
+            p = math.exp(-(( cand_res - residue)/T(i)))
             if random.random() < p:
                 P = P_prime
-        newA_double = get_A_prime(A, P_doubleprime)
-        if KK(newA_prime) < KK(newA_double):
+                currentA = newA_prime
+                residue = cand_res
+        
+        if cand_res < double_res:
             P_doubleprime = P
-    return  int(KK(newA_double))
+            double_res = residue
+            newA_double = currentA
+
+    return double_res
 
 
 alg = int(sys.argv[2])
@@ -163,8 +185,8 @@ if alg == 2:
 if alg == 3:
     print(simulated_annealing(A, 25000))
 if alg == 11:
-    print(repeated_random_pp(A, 5000))
+    print(repeated_random_pp(A, 25000))
 if alg == 12:
-    print(hill_climbing_pp(A, 5000))
+    print(hill_climbing_pp(A, 25000))
 if alg == 13:
-    print(simulated_annealing_pp(A, 5000))
+    print(simulated_annealing_pp(A, 25000))
