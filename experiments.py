@@ -3,7 +3,7 @@ import numpy as np
 import time
 import matplotlib.pyplot as plt
 
-var = 10
+var = 50
 setlist = [[0]]*var
 resultlist = [[0]*var for _ in range(7)]
 timelist = [[0]*var for _ in range(7)]
