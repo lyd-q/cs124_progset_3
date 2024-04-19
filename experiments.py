@@ -1,15 +1,16 @@
 import algorithms
 import numpy as np
 import time
+import matplotlib.pyplot as plt
 
 setlist = [[0]]*50
 resultlist = [[0]*50]*7
 timelist = [[0]*50]*7
 #generate set of random numbers
-for i in range(50):
+for i in range(1):
     setlist[i] = np.random.randint(1, 10**12, 100)
 
-for i in range(50):
+for i in range(1):
 
     start_time = time.time()
     resultlist[0][i] = algorithms.KK(setlist[i])
@@ -48,4 +49,14 @@ for i in range(50):
 
     print(i)
 print(setlist)
-    
+
+for i in range(7):
+    plt.hist(resultlist[i])
+    plt.show
+
+    plt.hist(timelist[i])
+    plt.show
+
+    print("resultlist,", i, ":", np.mean(resultlist[i]))
+    print("timelist,", i, ":",np.mean(timelist[i]))
+    print("")
